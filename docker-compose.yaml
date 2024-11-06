@@ -16,15 +16,16 @@ services:
     networks:
       - laravel_network
 
-  app:
-    build: .
-    container_name: laravel-app
+  nginx:
+    image: 'nginx:latest'
+    container_name: laravel-nginx
     ports:
       - '${APP_PORT:-8080}:80'
     volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - .:/var/www/app
-      - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
-    working_dir: /var/www/app
+    depends_on:
+      - app
     networks:
       - laravel_network
 
@@ -38,6 +39,15 @@ services:
       PMA_PASSWORD: '${DB_PASSWORD}'
     ports:
       - '8081:80'
+    networks:
+      - laravel_network
+
+  app:
+    build: .
+    container_name: laravel-app
+    volumes:
+      - .:/var/www/app
+    working_dir: /var/www/app
     networks:
       - laravel_network
 
